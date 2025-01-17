@@ -28,9 +28,13 @@ It took me a while to realize the order doesn't actually matter and that's the p
 
 That said I'm pretty happy with the output from my example file.
 
+All I'm doing is creating a vector with normalized binary values (using floats for the dotproducts) and storing them at the index of the character's code point and normalizing for length. Then it's standard cosine similarity (measuring the projection of one vector on to another to see how similar they are). I found binary to be better performing than word frequency (what's generally recommended - but I think the application is more for sentences). I.E. I'm ignoring word frequencies and just seeing how similar the set of characters in words are in vector space.
+
 ## Why simple in the end
 
 Because simpler is better if the results are the same. And the results are very similar.
+
+Essentially all I'm doing is giving similarity scores of 1 for any comparison (the best) and subtracting any characters that aren't similar. This is super easy to understand, performant, and doesn't seem to do too bad in my example file.
 
 ## Why I skipped proper nouns
 
