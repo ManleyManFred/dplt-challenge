@@ -4,9 +4,16 @@ import type { Misspellings, WordSimilarityScorer } from './models'
 
 export class SpellChecker {
     private scorer: WordSimilarityScorer;
+    private min_score: number;
+    private max_suggestions: number;
 
-    constructor(scorer: WordSimilarityScorer) {
+    constructor(
+        scorer: WordSimilarityScorer, 
+        min_score: number = 0.8, 
+        max_suggestions: number = 10) {
         this.scorer = scorer;
+        this.min_score = min_score;
+        this.max_suggestions = max_suggestions;
     }
 
     async get_dictionary_from_file(path: string) {
@@ -67,9 +74,7 @@ export class SpellChecker {
 
     get_suggestions(
         word: string, 
-        dict: Map<string, Float32Array>,
-        min_score: number = 0.8,
-        max_suggestions: number = 10
+        dict: Map<string, Float32Array>
     ) {
         const embedding = this.scorer.get_normalized_score(word);
 
@@ -77,11 +82,11 @@ export class SpellChecker {
 
         dict.forEach((target_embedding, target_word) => {
             const score = this.scorer.get_normalized_comparison_score(word, target_word);
-            score > min_score && suggestions.push({target_word, score})
+            score > this.min_score && suggestions.push({target_word, score})
         });
 
         let trimmedSuggestions = suggestions.sort((a, b) => b.score - a.score).map(s => s.target_word);
 
-        return trimmedSuggestions.length > max_suggestions ? trimmedSuggestions.slice(0, max_suggestions) : trimmedSuggestions;
+        return trimmedSuggestions.length > this.max_suggestions ? trimmedSuggestions.slice(0, this.max_suggestions) : trimmedSuggestions;
     }
 }
