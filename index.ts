@@ -1,12 +1,16 @@
-import { get_misspellings, get_suggestions, load_dictionary, generate_embedding } from "./dictionary";
+import { SpellChecker } from "./spell_checker";
+import { VectorEmbeddingScorer } from "./vector_embedding_scorer";
+import { NaiveVectorEmbedding } from "./embedding_generators";
 
-let dict = await load_dictionary('./dictionary.txt');
+const checker = new SpellChecker(new VectorEmbeddingScorer(new NaiveVectorEmbedding()));
 
-let mispelllings = await get_misspellings('./test_file.txt', dict);
+let dict = await checker.get_dictionary_from_file('./dictionary.txt');
+
+let mispelllings = await checker.get_misspellings('./test_file.txt', dict);
 
 console.log('mispelled words:');
 for(let word of mispelllings.words) {
-    let suggestions = get_suggestions(word, dict);
+    let suggestions = checker.get_suggestions(word, dict);
     console.log(`${word} - ${suggestions.join(',')}`);
 }
 
